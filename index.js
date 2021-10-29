@@ -4,18 +4,19 @@ const { MongoClient } = require('mongodb');
 
 //this is for single services
 const ObjectId = require('mongodb').ObjectId;
-var cors = require('cors')
+
+const cors = require('cors')
 require('dotenv').config();
 
 
 const app = express();
-const port = 5000;
+const port = process.env.PORT || 5000;
 
 
 
 //middleware
 app.use(cors());
-//ai line kano ??
+//ai data kaw ka dai or recive kori ,, jai kori nah kano ... data gola json formate a pabo. 
 app.use(express.json());
 
 //database uri and name and password
@@ -36,30 +37,47 @@ async function run() {
         // console.log('connected to database');
 
         //GET ALL THE INSERTED USER IN CLIENT SERVER
-        app.get('/services', async (req, res) => {        
+        app.get('/services', async (req, res) => {
             const cursor = serviceCollection.find({});
             const services = await cursor.toArray();
             res.send(services);
         })
 
-        //get single services details
+
+        //get single services details 
         app.get('/services/:id', async (req, res) => {
+            //j id ta cliant side thaka astaca , sai id ta req.params.id heasaba recive korbo.
             const id = req.params.id;
             console.log('getting specific id', id);
+
             const query = { _id: ObjectId(id) };
             const service = await serviceCollection.findOne(query);
+
+            //avaba o kora jaba.... 
+            // const service = await serviceCollection.findOne({ _id: ObjectId(id) })
+
             res.json(service);
         })
 
+
         //POST API
         app.post('/services', async (req, res) => {
+            // cliant side thaka ja data ta patacci , sai data ta server side a req.body ar vitor pabo.
             const service = req.body;
 
             console.log('hit the post', service);
-           const result = await serviceCollection.insertOne(service);
-           console.log(result);
+            const result = await serviceCollection.insertOne(service);
+            console.log(result);
             res.json(result)
+
+            //----- avaba o kora jaba--- jodi tomi pro hoya thako tahola.... 
+            // res.json(await serviceCollection.insertOne(req.body));
         });
+
+
+
+
+
 
         //delete API
         app.delete('/services/:id', async (req, res) => {
@@ -87,5 +105,3 @@ app.listen(port, () => {
     console.log(`Running genius server on port ${port}`)
 })
 
-  //name : anisur
-  //pass : JOtPGG61Tza0NEdo
